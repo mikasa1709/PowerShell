@@ -1,4 +1,4 @@
-# setup.ps1 - Configuración completa de PowerShell
+# setup.ps1 - Configuración personalizada de PowerShell
 
 Write-Host "🔧 Iniciando configuración de PowerShell..." -ForegroundColor Cyan
 
@@ -10,31 +10,41 @@ winget install JanDeDobbeleer.OhMyPosh -s winget --accept-package-agreements --a
 Write-Host "`n➡ Instalando Fastfetch..." -ForegroundColor Yellow
 winget install fastfetch --accept-package-agreements --accept-source-agreements
 
-# 3. Descargar tu tema personalizado
+# 3. Descargar el tema personalizado
 $themeUrl = "https://raw.githubusercontent.com/mikasa1709/PowerShell/main/bubblesextra.omp.json"
 $themePath = "$HOME\bubblesextra.omp.json"
 
 Write-Host "`n➡ Descargando tema personalizado..." -ForegroundColor Yellow
 Invoke-WebRequest -Uri $themeUrl -OutFile $themePath
 
-# 4. Instalar JetBrainsMono Nerd Font
-Write-Host "`n➡ Descargando e instalando Nerd Font (JetBrainsMono)..." -ForegroundColor Yellow
-$fontZip = "$env:TEMP\JetBrainsMono.zip"
-$fontUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip"
-$fontFolder = "$env:TEMP\JetBrainsMonoFont"
+# 4. Verificar si la fuente Nerd Font ya está instalada
+$fontName = "JetBrainsMono Nerd Font"
+$fontsPath = "$env:WINDIR\Fonts"
+$fontInstalled = Get-ChildItem $fontsPath -Include *.ttf -Recurse | Where-Object { $_.Name -like "*JetBrainsMono*Nerd*.ttf" }
 
-Invoke-WebRequest -Uri $fontUrl -OutFile $fontZip
-Expand-Archive -Path $fontZip -DestinationPath $fontFolder -Force
+if ($fontInstalled) {
+    Write-Host "`n✔ Fuente '$fontName' ya está instalada. Saltando instalación." -ForegroundColor Green
+}
+else {
+    Write-Host "`n➡ Descargando e instalando Nerd Font ($fontName)..." -ForegroundColor Yellow
 
-# Instalar todas las fuentes .ttf del zip
-$fonts = Get-ChildItem "$fontFolder" -Include *.ttf -Recurse
-foreach ($font in $fonts) {
-    Copy-Item $font.FullName -Destination "$env:WINDIR\Fonts" -Force
+    $fontZip = "$env:TEMP\JetBrainsMono.zip"
+    $fontUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip"
+    $fontFolder = "$env:TEMP\JetBrainsMonoFont"
+
+    Invoke-WebRequest -Uri $fontUrl -OutFile $fontZip
+    Expand-Archive -Path $fontZip -DestinationPath $fontFolder -Force
+
+    # Instalar fuentes
+    $fonts = Get-ChildItem "$fontFolder" -Include *.ttf -Recurse
+    foreach ($font in $fonts) {
+        Copy-Item $font.FullName -Destination $fontsPath -Force
+    }
+
+    Write-Host "`n✅ Fuente '$fontName' instalada correctamente." -ForegroundColor Green
 }
 
-Write-Host "`n✅ Fuente Nerd Font instalada. Ahora puedes seleccionarla en Windows Terminal." -ForegroundColor Green
-
-# 5. Crear o editar perfil de PowerShell
+# 5. Crear o editar el perfil de PowerShell
 Write-Host "`n➡ Configurando perfil de PowerShell..." -ForegroundColor Yellow
 
 if (!(Test-Path -Path $PROFILE)) {
@@ -48,4 +58,6 @@ fastfetch
 
 Set-Content -Path $PROFILE -Value $profileContent
 
-Write-Host "`n✅ Configuración completada. Cambia la fuente en Windows Terminal a 'JetBrainsMono Nerd Font' y reinicia PowerShell." -ForegroundColor Green
+Write-Host "`n✅ Configuración completada."
+Write-Host "➡ Abre la configuración de Windows Terminal y cambia la fuente a '$fontName'." -ForegroundColor Yellow
+Write-Host "➡ Luego reinicia PowerShell para aplicar los cambios." -ForegroundColor Yellow
