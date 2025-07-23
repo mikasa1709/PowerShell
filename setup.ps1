@@ -11,8 +11,8 @@ Write-Host "`n➡ Instalando Fastfetch..." -ForegroundColor Yellow
 winget install fastfetch --accept-package-agreements --accept-source-agreements
 
 # 3. Descargar el tema personalizado
-$themeUrl = "https://raw.githubusercontent.com/mikasa1709/PowerShell/main/bubblesextra.omp.json"
-$themePath = "$HOME\bubblesextra.omp.json"
+$themeUrl = "https://raw.githubusercontent.com/mikasa1709/PowerShell/main/kushal.omp.json"
+$themePath = "$HOME\kushal.omp.json"
 
 Write-Host "`n➡ Descargando tema personalizado..." -ForegroundColor Yellow
 Invoke-WebRequest -Uri $themeUrl -OutFile $themePath
